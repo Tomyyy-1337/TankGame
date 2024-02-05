@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, transform::commands};
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
@@ -7,6 +7,9 @@ struct Tank;
 
 #[derive(Component, Debug)]
 struct Position(Vec3);
+
+#[derive(Component)]
+struct Rotation(Quat);
 
 fn main() {
     App::new()
@@ -38,43 +41,46 @@ fn spawn_lights(mut commands: Commands) {
             shadows_enabled: true,
             ..default()
         },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+        transform: Transform::from_xyz(4.0, 12.0, 4.0),
         ..default()
     });
 }
 
 fn read_keyboard_input(
-    mut query: Query<(&mut Position, With<Tank>)>,
+    mut query: Query<(&mut Position,&mut Rotation, With<Tank>)>,
     keyboard_input: Res<Input<KeyCode>>,
     delta_time: Res<Time>,
 ) {
-    for (mut position, _) in query.iter_mut() {
+    for (mut position, mut rotation, _) in query.iter_mut() {
         if keyboard_input.pressed(KeyCode::W) {
-            position.0.z -= 1.0 * delta_time.delta_seconds();
+            position.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 10.0)) * delta_time.delta_seconds();
         }
         if keyboard_input.pressed(KeyCode::S) {
-            position.0.z += 1.0 * delta_time.delta_seconds();
+            position.0 -= rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 10.0)) * delta_time.delta_seconds();
         }
+
         if keyboard_input.pressed(KeyCode::A) {
-            position.0.x -= 1.0 * delta_time.delta_seconds();
+            rotation.0 *= Quat::from_rotation_y(2.0 * delta_time.delta_seconds());
         }
         if keyboard_input.pressed(KeyCode::D) {
-            position.0.x += 1.0 * delta_time.delta_seconds();
+            rotation.0 *= Quat::from_rotation_y(-2.0 * delta_time.delta_seconds());
         }
+        
     }
 }
 
 fn update_model_pos(
-    mut query: Query<(&Position, &mut Transform), With<Tank>>
+    mut query: Query<(&Position, &Rotation, &mut Transform), With<Tank>>
 ) {
-    for (position, mut transform) in query.iter_mut() {
+    for (position, rotation, mut transform) in query.iter_mut() {
         transform.translation = position.0;
+        transform.rotation = rotation.0;
     }
 }
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(-10.5, 10.5, 40.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
 }
@@ -91,17 +97,17 @@ fn spawn_floor(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut mat
 
 fn spawn_tank_default(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    ass: Res<AssetServer>,
 ) {
+    let model = ass.load("tank.glb#Scene0");
     commands.spawn((
         Tank,
-        Position(Vec3::new(0.0, 0.5, 0.0)),
-        PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-            material: materials.add(Color::rgb_u8(124, 144, 255).into()),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
+        Position(Vec3::new(0.0, 0.0, 0.0)),
+        Rotation(Quat::from_rotation_y(0.0)),
+        SceneBundle {
+            scene: model,
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            ..Default::default()
         },
     ));
 }
