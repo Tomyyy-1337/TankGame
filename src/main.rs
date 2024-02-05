@@ -21,7 +21,6 @@ fn main() {
         .add_plugins((
             DefaultPlugins,
             EguiPlugin,
-            // WorldInspectorPlugin::new(),
             MapPlugin,
             CameraPlugin,
             TankPlugin,

@@ -15,7 +15,6 @@ pub struct Velocity(pub Vec3);
 #[derive(Component)]
 pub struct Force(pub Vec3);
 
-
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
@@ -28,16 +27,24 @@ impl Plugin for PhysicsPlugin {
 }
 
 fn apply_force (
-    mut query: Query<(&mut Position, &mut Velocity, &mut Force, &Mass)>,
+    mut query: Query<(&mut Position, &mut Velocity, &mut Force, &Mass, &mut Rotation)>,
     time: Res<Time>,
 ) {
-    for (mut position, mut velocity, mut force, mass) in query.iter_mut() {
+    for (mut position, mut velocity, mut force, mass, mut direction) in query.iter_mut() {
         let acceleration = force.0 / mass.0;
         velocity.0 += acceleration * time.delta_seconds();
+
         if velocity.0.length() <= 5.0 {
             velocity.0 = Vec3::ZERO;
             continue;
         }
+        let next_dir = Quat::from_rotation_y(velocity.0.x.atan2(velocity.0.z));
+
+        direction.0 = if direction.0.angle_between(next_dir) < 1.57 {
+            direction.0.slerp(next_dir, 0.1)
+        } else {
+            direction.0.slerp(next_dir.mul_quat(Quat::from_rotation_y(3.14)), 0.1)
+        };
         position.0 += velocity.0 * time.delta_seconds();
         force.0 = Vec3::ZERO;
     }

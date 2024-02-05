@@ -16,7 +16,8 @@ impl Plugin for TankPlugin {
             spawn_player_tank,
         ))
         .add_systems(PreUpdate, (
-            read_keyboard_input,
+            player_tank_movement_input,
+            slowdown_player_tank,
         ))
         .add_systems(PostUpdate, (
             update_model_pos,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
@@ -25,36 +26,44 @@ impl Plugin for TankPlugin {
 }
 
 
-fn read_keyboard_input(
-    mut query: Query<(&mut Rotation, &mut Force, &Velocity, &Mass), With<Player>>,
+fn player_tank_movement_input (
+    mut query: Query<(&mut Rotation, &mut Force, &Velocity), With<Player>>,
     keyboard_input: Res<Input<KeyCode>>,
     delta_time: Res<Time>,
 ) {
-    for (mut rotation, mut force, velocity, mass) in query.iter_mut() {
-        if keyboard_input.pressed(KeyCode::W) {
-            if velocity.0.length() < 5.0 {
-                force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 2000.0));
+    for (mut rotation, mut force, velocity) in query.iter_mut() {
+        if velocity.0.length() > 4.5{
+            if keyboard_input.pressed(KeyCode::A) {
+                force.0 += rotation.0.mul_vec3(Vec3::new(800.0, 0.0, 0.0));
             }
-            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 2000.0));
-        }
-        if keyboard_input.pressed(KeyCode::S) {
-            if velocity.0.length() < 5.0 {
-                force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, -2000.0));
+            if keyboard_input.pressed(KeyCode::D) {
+                force.0 += rotation.0.mul_vec3(Vec3::new(-800.0, 0.0, 0.0));
             }
-            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, -2000.0));
-        }
-
-        if velocity.0.length() > 5.0 {
-            force.0 -= velocity.0 * 2.0 * mass.0;
-            continue;
-        }
-        if keyboard_input.pressed(KeyCode::A) {
-            rotation.0 *= Quat::from_rotation_y(2.0 * delta_time.delta_seconds());
-        }
-        if keyboard_input.pressed(KeyCode::D) {
-            rotation.0 *= Quat::from_rotation_y(-2.0 * delta_time.delta_seconds());
+        } else {
+            if keyboard_input.pressed(KeyCode::A) {
+                rotation.0 *= Quat::from_rotation_y(1.3 * delta_time.delta_seconds());
+            }
+            if keyboard_input.pressed(KeyCode::D) {
+                rotation.0 *= Quat::from_rotation_y(-1.3 * delta_time.delta_seconds());
+            }
         }
         
+        if keyboard_input.pressed(KeyCode::W) {
+            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 4000.0));
+        }
+        if keyboard_input.pressed(KeyCode::S) {
+            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, -3000.0));
+        }
+    }
+}
+
+fn slowdown_player_tank (
+    mut query: Query<(&mut Force, &Velocity, &Mass), With<Player>>,
+) {
+    for (mut force, velocity, mass) in query.iter_mut() {
+        if velocity.0.length() > 5.0 {
+            force.0 -= velocity.0 * 2.0 * mass.0;
+        }
     }
 }
 
@@ -71,7 +80,7 @@ fn spawn_player_tank (
     mut commands: Commands,
     ass: Res<AssetServer>,
 ) {
-    let model = ass.load("tank.glb#Scene0");
+    let model = ass.load("tank2.glb#Scene0");
     commands.spawn((
         Tank,
         Player,
