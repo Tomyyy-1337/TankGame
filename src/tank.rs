@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{asset_loader::SceneAssets, physics::{Force, Mass, Physics, Position, Rotation, Velocity}};
-
-use crate::menu::MenuState;
+use crate::schedule::ScheduleSet;
 
 /// Marker component for Tanks
 #[derive(Component)]
@@ -20,13 +19,13 @@ impl Plugin for TankPlugin {
         app.add_systems(Startup, (
             spawn_player_tank,
         ))
-        .add_systems(PreUpdate, (
+        .add_systems(Update, (
             player_tank_movement_input,
             slowdown_player_tank,
-        ).run_if(in_state(MenuState::Closed)))
-        .add_systems(PostUpdate, (
+        ).in_set(ScheduleSet::Input))
+        .add_systems(Update, (
             update_model_pos,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-        ).run_if(in_state(MenuState::Closed)));
+        ).in_set(ScheduleSet::UpdateWorld));
     }
 }
 
@@ -40,10 +39,10 @@ fn player_tank_movement_input (
         if velocity.0.length() > 2.5 {
             if keyboard_input.pressed(KeyCode::A) {
                 // if driving forward, turn left else turn right
-                force.0 += rotation.0.mul_vec3(Vec3::new(300.0 + velocity.0.length() * 2.0, 0.0, 0.0));
+                force.0 += rotation.0.mul_vec3(Vec3::new(200.0 + velocity.0.length() * 2.0, 0.0, 0.0));
             }
             if keyboard_input.pressed(KeyCode::D) {
-                force.0 += rotation.0.mul_vec3(Vec3::new(-300.0 - velocity.0.length() * 2.0, 0.0, 0.0));
+                force.0 += rotation.0.mul_vec3(Vec3::new(-200.0 - velocity.0.length() * 2.0, 0.0, 0.0));
             }
         } else {
             if keyboard_input.pressed(KeyCode::A) && !keyboard_input.pressed(KeyCode::W) && !keyboard_input.pressed(KeyCode::S) {

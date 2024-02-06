@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::asset_loader::FontAssets;
+use crate::schedule::ScheduleSet;
 
 
 /// Marker component for menu items.
@@ -30,8 +31,9 @@ impl Default for MenuState {
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<MenuState>()
-            .add_systems(First, toggle_menu)
-            .add_systems(Update, toggle_display_menu);
+            .add_systems(Update, (
+                toggle_menu,
+            ).in_set(ScheduleSet::CheckMenu));
     }
 }
 
@@ -40,27 +42,13 @@ fn toggle_menu(
     mut commands: Commands,
     keyboard_inputs: Res<Input<KeyCode>>,
     simulation_state: Res<State<MenuState>>,
-) {
-    if keyboard_inputs.just_pressed(KeyCode::Escape) {
-        commands.insert_resource(NextState(Some( match simulation_state.get() {
-            MenuState::Open => MenuState::Closed,
-            MenuState::Closed => MenuState::Open,
-        })));
-    }
-}
-
-/// System to display or hide the menu based on the current menu state.
-/// If the menu state is `MenuState::Open`, the menu is displayed.
-/// If the menu state is `MenuState::Closed`, the menu is hidden.
-fn toggle_display_menu(
-    mut commands: Commands,
     font_assets: Res<FontAssets>,
-    simulation_state: Res<State<MenuState>>,
     mut query: Query<(Entity, &MenuItem)>,
 ) {
-    if simulation_state.is_changed() {
+    if keyboard_inputs.just_pressed(KeyCode::Escape) {
         match simulation_state.get() {
-            MenuState::Open => {
+            MenuState::Closed => {
+                commands.insert_resource(NextState(Some(MenuState::Open)));
                 commands.spawn((
                     MenuItem,
                     NodeBundle {
@@ -125,12 +113,12 @@ fn toggle_display_menu(
                         });
                 });
             },
-            MenuState::Closed => {
+            MenuState::Open => {
+                commands.insert_resource(NextState(Some(MenuState::Closed)));
                 for (entity, _) in query.iter_mut() {
                     commands.entity(entity).despawn_recursive();
                 }
             },
-        }
-        
+        };
     }
 }

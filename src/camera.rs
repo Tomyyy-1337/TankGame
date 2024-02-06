@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy::input::mouse::{MouseWheel, MouseMotion};
 
-use crate::{physics::{Position, Rotation}, tank::Player, menu::MenuState};
+use crate::{physics::{Position, Rotation}, tank::Player};
+use crate::schedule::ScheduleSet;
 
 pub struct CameraPlugin;
 
@@ -20,13 +21,13 @@ impl Plugin for CameraPlugin {
         app.add_systems(Startup, (
             spawn_camera,
         ))
-        .add_systems(PreUpdate, (
+        .add_systems(Update, (
             update_camera_zoom,
             zoom_key,
-        ).run_if(in_state(MenuState::Closed)))
+        ).in_set(ScheduleSet::Input))
         .add_systems(Update, (
             update_camera,
-        ).run_if(in_state(MenuState::Closed)));
+        ).in_set(ScheduleSet::UpdateWorld));
     }
 }
 

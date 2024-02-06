@@ -22,6 +22,9 @@ use asset_loader::AssetLoaderPlugin;
 pub mod menu;
 use menu::MenuPlugin;
 
+pub mod schedule;
+use schedule::SchedulePlugin;
+
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins.set(WindowPlugin {
@@ -42,6 +45,7 @@ fn main() {
             UIPlugin,
             PhysicsPlugin,
             MenuPlugin,
+            SchedulePlugin,
         ))
         .run();
 }

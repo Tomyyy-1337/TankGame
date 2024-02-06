@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::menu::MenuState;
+use crate::schedule::ScheduleSet;
 
 /// Component to store the position of an entity
 #[derive(Component, Debug)]
@@ -29,7 +29,7 @@ impl Plugin for PhysicsPlugin {
         
         app.add_systems(Update, (
             apply_force,
-        ).run_if(in_state(MenuState::Closed)));
+        ).in_set(ScheduleSet::Physics));
     }
 }
 

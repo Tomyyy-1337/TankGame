@@ -11,10 +11,9 @@ impl Plugin for MapPlugin {
                 color: Color::rgb(0.8, 0.8, 0.8),
                 brightness: 0.75,
             })
-
             .add_systems(Startup, (
-            spawn_floor,
-        ));
+                spawn_floor,
+            ));
     }
 }
 
