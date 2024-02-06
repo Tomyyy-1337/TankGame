@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::asset_loader::SceneAssets;
+
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
@@ -9,17 +11,27 @@ impl Plugin for MapPlugin {
                 color: Color::rgb(0.8, 0.8, 0.8),
                 brightness: 0.75,
             })
+
             .add_systems(Startup, (
             spawn_floor,
         ));
     }
 }
 
-fn spawn_floor(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 500.0, subdivisions: 5})),
-        material: materials.add(Color::rgb_u8(240, 240, 240).into()),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..default()
-    });
+
+fn spawn_floor (
+    mut commands: Commands,
+    assets: Res<SceneAssets>,
+) {
+    for i in -20..=20 {
+        for j in -20..=20 {
+            commands.spawn((
+                SceneBundle {
+                    scene: assets.floor.clone(),
+                    transform: Transform::from_xyz(40.0 * i as f32, 0.0, 40.0 * j as f32),
+                    ..Default::default()
+                },
+            ));
+        }
+    }
 }

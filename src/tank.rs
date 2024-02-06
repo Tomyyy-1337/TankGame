@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::physics::{Force, Mass, Physics, Position, Rotation, Velocity};
+use crate::{asset_loader::SceneAssets, physics::{Force, Mass, Physics, Position, Rotation, Velocity}};
 
 #[derive(Component)]
 pub struct Tank;
@@ -78,9 +78,8 @@ fn update_model_pos(
 
 fn spawn_player_tank (
     mut commands: Commands,
-    ass: Res<AssetServer>,
+    assets: Res<SceneAssets>
 ) {
-    let model = ass.load("tank2.glb#Scene0");
     commands.spawn((
         Tank,
         Player,
@@ -89,7 +88,7 @@ fn spawn_player_tank (
             ..Default::default()
         },
         SceneBundle {
-            scene: model,
+            scene: assets.tank.clone(),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..Default::default()
         },

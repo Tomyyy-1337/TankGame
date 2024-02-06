@@ -33,13 +33,13 @@ fn apply_force (
     for (mut position, mut velocity, mut force, mass, mut direction) in query.iter_mut() {
         let acceleration = force.0 / mass.0;
         velocity.0 += acceleration * time.delta_seconds();
-
+        
         if velocity.0.length() <= 5.0 {
             velocity.0 = Vec3::ZERO;
             continue;
         }
-        let next_dir = Quat::from_rotation_y(velocity.0.x.atan2(velocity.0.z));
 
+        let next_dir = Quat::from_rotation_y(velocity.0.x.atan2(velocity.0.z));
         direction.0 = if direction.0.angle_between(next_dir) < 1.57 {
             direction.0.slerp(next_dir, 0.1)
         } else {

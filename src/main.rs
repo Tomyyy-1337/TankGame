@@ -16,11 +16,15 @@ use tank::TankPlugin;
 mod ui;
 use ui::UIPlugin;
 
+mod asset_loader;
+use asset_loader::AssetLoaderPlugin;
+
 fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
             EguiPlugin,
+            AssetLoaderPlugin,
             MapPlugin,
             CameraPlugin,
             TankPlugin,
