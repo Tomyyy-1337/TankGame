@@ -1,5 +1,4 @@
 use bevy::{prelude::*, window::PresentMode};
-use bevy_egui::EguiPlugin;
 
 mod map;
 use map::MapPlugin;
@@ -37,7 +36,8 @@ fn main() {
                 }),
             ..default()
             }),
-            EguiPlugin,
+            bevy_framepace::FramepacePlugin,
+            bevy_egui::EguiPlugin,
             AssetLoaderPlugin,
             MapPlugin,
             CameraPlugin,

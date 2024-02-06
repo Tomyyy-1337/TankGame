@@ -9,6 +9,7 @@ pub enum ScheduleSet {
     Physics,
     UpdateWorld,   
     Debug, 
+    PauseMenu
 }
 
 pub struct SchedulePlugin;
@@ -22,6 +23,7 @@ impl Plugin for SchedulePlugin {
                 ScheduleSet::Physics,
                 ScheduleSet::UpdateWorld,
             ).chain().run_if(in_state(MenuState::Closed)),
+            ScheduleSet::PauseMenu.run_if(in_state(MenuState::Open)),
             ScheduleSet::Debug,
         ).chain());
     }
