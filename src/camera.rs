@@ -16,6 +16,7 @@ impl Plugin for CameraPlugin {
         ))
         .add_systems(PreUpdate, (
             update_camera_zoom,
+            zoom_key,
         ))
         .add_systems(Update, (
             update_camera,
@@ -66,3 +67,19 @@ fn update_camera_zoom(
         }
     }
 }
+
+fn zoom_key (
+    mut zoom: Query<&mut Zoom, With<Camera>>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
+    for mut z in zoom.iter_mut() {
+        if keyboard_input.just_pressed(KeyCode::ShiftLeft) {
+            if z.0 <= -30.0 {
+                z.0 = 30.0;
+            } else if z.0 >= 30.0 {
+                z.0 = -30.0;
+            }
+        }
+    }
+}
+
