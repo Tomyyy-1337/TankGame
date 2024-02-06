@@ -1,17 +1,24 @@
 use bevy::prelude::*;
 
+use crate::menu::MenuState;
+
+/// Component to store the position of an entity
 #[derive(Component, Debug)]
 pub struct Position(pub Vec3);
 
+/// Component to store the rotation of an entity
 #[derive(Component)]
 pub struct Rotation(pub Quat);
 
+/// Component to store the mass of an entity
 #[derive(Component)]
 pub struct Mass(pub f32);
 
+/// Component to store the velocity of an entity
 #[derive(Component)]
 pub struct Velocity(pub Vec3);
 
+/// Component to store the force applied to an entity in the current frame
 #[derive(Component)]
 pub struct Force(pub Vec3);
 
@@ -22,10 +29,15 @@ impl Plugin for PhysicsPlugin {
         
         app.add_systems(Update, (
             apply_force,
-        ));
+        ).run_if(in_state(MenuState::Closed)));
     }
 }
 
+/// System to apply force to entities with a position, velocity, force, and mass.
+/// The force is applied to the velocity, and the velocity is used to update the position.
+/// The force is then reset to zero.
+/// The direction of the entity is also updated to face the direction of the velocity.
+/// If the velocity is less than 2.5, the velocity is set to zero.
 fn apply_force (
     mut query: Query<(&mut Position, &mut Velocity, &mut Force, &Mass, &mut Rotation)>,
     time: Res<Time>,
@@ -34,7 +46,7 @@ fn apply_force (
         let acceleration = force.0 / mass.0;
         velocity.0 += acceleration * time.delta_seconds();
         
-        if velocity.0.length() <= 5.0 {
+        if velocity.0.length() <= 2.5  {
             velocity.0 = Vec3::ZERO;
             continue;
         }
@@ -50,6 +62,8 @@ fn apply_force (
     }
 }
 
+/// Bundle of components for physics.
+/// This bundle includes the position, rotation, mass, velocity, and force components.
 #[derive(Bundle)]
 pub struct Physics {
     pub position: Position,

@@ -1,13 +1,19 @@
 use bevy::prelude::*;
-use bevy::input::mouse::MouseWheel;
+use bevy::input::mouse::{MouseWheel, MouseMotion};
 
-use crate::{physics::{Position, Rotation}, tank::Player};
+use crate::{physics::{Position, Rotation}, tank::Player, menu::MenuState};
 
 pub struct CameraPlugin;
 
+/// Zoom component for the camera.
+/// The zoom is a f32 value that is used to determine the distance from the camera to the player.
 #[derive(Component)]
 pub struct Zoom(pub f32);
 
+/// MousePosition component for the camera.
+/// The mouse position is a Vec2 value that is used to determine the last position of the mouse.
+#[derive(Component)]
+pub struct MousePosition(pub Vec2);
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
@@ -17,13 +23,14 @@ impl Plugin for CameraPlugin {
         .add_systems(PreUpdate, (
             update_camera_zoom,
             zoom_key,
-        ))
+        ).run_if(in_state(MenuState::Closed)))
         .add_systems(Update, (
             update_camera,
-        ));
+        ).run_if(in_state(MenuState::Closed)));
     }
 }
 
+/// Spawn the camera
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera3dBundle {
@@ -31,9 +38,11 @@ fn spawn_camera(mut commands: Commands) {
             ..default()
         },
         Zoom(40.0),
+        MousePosition(Vec2::ZERO),
     ));
 }
 
+/// System to update the camera position and rotation to follow the player.
 fn update_camera(
     query: Query<(&Position, &Rotation), With<Player>>, 
     mut camera_query: Query<(&mut Transform, &Zoom), With<Camera>>,
@@ -46,6 +55,18 @@ fn update_camera(
     }
 }
 
+// fn update_mouse_position(
+//     mut mouse_position: Query<&mut MousePosition, With<Camera>>,
+//     mut new_mouse_motion: ResMut<Events<MouseMotion>>,
+// ) {
+//     for ev in new_mouse_motion.drain() {
+//         for mut mp in mouse_position.iter_mut() {
+//             mp.0 += ev.delta;
+//         }
+//     }
+// }
+
+/// System to update the camera zoom based on the mouse wheel input.
 fn update_camera_zoom(
     mut zoom: Query<&mut Zoom, With<Camera>>,
     mut scroll_evr: EventReader<MouseWheel>,
@@ -68,6 +89,8 @@ fn update_camera_zoom(
     }
 }
 
+/// System to update the camera zoom based on the keyboard input
+/// Switch the zoom between third person and first person
 fn zoom_key (
     mut zoom: Query<&mut Zoom, With<Camera>>,
     keyboard_input: Res<Input<KeyCode>>,
@@ -75,9 +98,9 @@ fn zoom_key (
     for mut z in zoom.iter_mut() {
         if keyboard_input.just_pressed(KeyCode::ShiftLeft) {
             if z.0 <= -30.0 {
-                z.0 = 30.0;
+                z.0 = 50.0;
             } else if z.0 >= 30.0 {
-                z.0 = -30.0;
+                z.0 = -40.0;
             }
         }
     }

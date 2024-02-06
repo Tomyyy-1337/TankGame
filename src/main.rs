@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PresentMode};
 use bevy_egui::EguiPlugin;
 
 mod map;
@@ -19,10 +19,21 @@ use ui::UIPlugin;
 mod asset_loader;
 use asset_loader::AssetLoaderPlugin;
 
+pub mod menu;
+use menu::MenuPlugin;
+
 fn main() {
     App::new()
-        .add_plugins((
-            DefaultPlugins,
+        .add_plugins((DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "TankGame".into(),
+                resolution: (1000., 750.).into(),
+                present_mode: PresentMode::Mailbox,
+                fit_canvas_to_parent: true,
+                ..default()
+                }),
+            ..default()
+            }),
             EguiPlugin,
             AssetLoaderPlugin,
             MapPlugin,
@@ -30,6 +41,7 @@ fn main() {
             TankPlugin,
             UIPlugin,
             PhysicsPlugin,
+            MenuPlugin,
         ))
         .run();
 }

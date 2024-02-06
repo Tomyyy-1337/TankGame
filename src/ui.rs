@@ -14,6 +14,7 @@ impl Plugin for UIPlugin {
     }
 }
 
+/// System to display debug tank data.
 fn ui_example_system(mut contexts: EguiContexts, query: Query<(&Position, &Force, &Mass, &Rotation, &Velocity), With<Player>>) {
     egui::Window::new("Debug Tank Data").show(contexts.ctx_mut(), |ui| {
         for (position, force, mass, rotation, velocity) in query.iter() {

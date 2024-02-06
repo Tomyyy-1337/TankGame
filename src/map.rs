@@ -18,7 +18,7 @@ impl Plugin for MapPlugin {
     }
 }
 
-
+/// System to spawn the floor. The floor is a 40x40 grid of tiles centered at the origin.
 fn spawn_floor (
     mut commands: Commands,
     assets: Res<SceneAssets>,
