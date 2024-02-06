@@ -40,12 +40,12 @@ fn update_camera(
     for (position, rotation) in query.iter() {
         for (mut transform, zoom) in camera_query.iter_mut() {
             transform.translation = position.0 + rotation.0.mul_vec3(Vec3::new(-0.0, 15.5, -zoom.0));
-            transform.look_at(position.0 + (rotation.0.mul_vec3(Vec3::new(0.0, 5.0, 60.0))), Vec3::Y);
+            transform.look_at(position.0 + (rotation.0.mul_vec3(Vec3::new(0.0, 5.0, (-10.0 * zoom.0).max(80.0)))), Vec3::Y);
         }
     }
 }
 
-fn update_camera_zoom (
+fn update_camera_zoom(
     mut zoom: Query<&mut Zoom, With<Camera>>,
     mut scroll_evr: EventReader<MouseWheel>,
 ) {
@@ -53,6 +53,14 @@ fn update_camera_zoom (
     for ev in scroll_evr.read(){
         if let MouseScrollUnit::Line = ev.unit {
             for mut z in zoom.iter_mut() {
+                if z.0 == 30.0 && ev.y > 0.0 {
+                    z.0 = -30.0;
+                    continue;
+                }
+                if z.0 == -30.0 && ev.y < 0.0 {
+                    z.0 = 30.0;
+                    continue;
+                }
                 z.0 += ev.y * -10.0;
             }
         }

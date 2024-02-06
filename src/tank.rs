@@ -34,25 +34,25 @@ fn player_tank_movement_input (
     for (mut rotation, mut force, velocity) in query.iter_mut() {
         if velocity.0.length() > 4.5{
             if keyboard_input.pressed(KeyCode::A) {
-                force.0 += rotation.0.mul_vec3(Vec3::new(800.0, 0.0, 0.0));
+                force.0 += rotation.0.mul_vec3(Vec3::new(600.0, 0.0, 0.0));
             }
             if keyboard_input.pressed(KeyCode::D) {
-                force.0 += rotation.0.mul_vec3(Vec3::new(-800.0, 0.0, 0.0));
+                force.0 += rotation.0.mul_vec3(Vec3::new(-600.0, 0.0, 0.0));
             }
         } else {
             if keyboard_input.pressed(KeyCode::A) {
-                rotation.0 *= Quat::from_rotation_y(1.3 * delta_time.delta_seconds());
+                rotation.0 *= Quat::from_rotation_y(1.0 * delta_time.delta_seconds());
             }
             if keyboard_input.pressed(KeyCode::D) {
-                rotation.0 *= Quat::from_rotation_y(-1.3 * delta_time.delta_seconds());
+                rotation.0 *= Quat::from_rotation_y(-1.0 * delta_time.delta_seconds());
             }
         }
         
         if keyboard_input.pressed(KeyCode::W) {
-            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 4000.0));
+            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, 5000.0));
         }
         if keyboard_input.pressed(KeyCode::S) {
-            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, -3000.0));
+            force.0 += rotation.0.mul_vec3(Vec3::new(0.0, 0.0, -4000.0));
         }
     }
 }
